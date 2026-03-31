@@ -3,7 +3,7 @@
 import sys, os, requests
 
 # Default API Key (user should replace with their own)
-DEFAULT_API_KEY = "sk-cp-GJz9rIQnN3YkAuvuasB1b8ZJJiMX_TjxTTfS7G7E1yZR10Z_9onLCvEOSdsDglhw49i8PdNg-92ZbMzFuzuW13viaoFEmlIE-qJMLWY10DZFFDUWTCSQNFY"
+DEFAULT_API_KEY = "Your API"
 API_URL = "https://api.minimaxi.com/v1/t2a_v2"
 
 def speak(text, voice_id="female-shaonv", speed=1.0, vol=1.0, pitch=0,
