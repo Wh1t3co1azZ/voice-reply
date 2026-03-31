@@ -1,120 +1,184 @@
----
-name: voice-reply
-version: 1.0.0
-description: MiniMax speech-2.8-hd TTS voice reply. Generate and play speech audio after every text reply.
-homepage: https://github.com/Wh1t3co1azZ/voice-reply
-emoji: 🗣️
----
-
 # Voice Reply
 
-MiniMax speech-2.8-hd TTS voice reply skill. After every text reply, generates speech audio and plays it through the system speaker using `afplay`.
+MiniMax speech-2.8-hd TTS voice reply skill. Generate and play speech audio after every text reply via `afplay`.
 
-## Requirements
+## 功能概述
 
-- Python 3 with `requests` library
-- MiniMax API Key (`MINIMAX_API_KEY` env var or inline in script)
-- `afplay` (macOS built-in) for audio playback
-- No proxy needed (direct connection to `api.minimaxi.com`)
+在 AI 助手每次文字回复后，自动调用 MiniMax speech-2.8-hd 生成语音并通过系统播放器（macOS `afplay`）从电脑喇叭直接播出，无需点击、无需手动播放。
 
-## Usage
+## 核心特性
 
-### One-line command
+- **高清音质**：MiniMax speech-2.8-hd 模型，支持 40 种中文音色
+- **即时播报**：生成后立即通过 `afplay` 播放
+- **即装即用**：无需额外依赖（requests 库，macOS 内置 afplay）
+- **隐私优先**：API Key 可配置，不上传任何用户数据
+
+## 实现方式
+
+```
+用户文字回复
+    ↓
+AI 生成文字内容
+    ↓
+调用 voice_reply.py 生成 MP3 音频
+    ↓
+afplay 从系统喇叭播放
+```
+
+### 技术细节
+
+- **TTS API**：MiniMax T2A v2 HTTP 接口
+- **模型**：speech-2.8-hd（高清语音）
+- **音频格式**：MP3，32000Hz，128kbps
+- **播放**：macOS 内置 `/usr/bin/afplay`，无依赖
+- **代理**：直连 `api.minimaxi.com`，无需代理（若网络不通可走代理）
+
+## 安装
+
+### 1. 克隆仓库
 
 ```bash
-PYTHONPATH=/path/to/site-packages python3 /path/to/voice_reply.py "文字内容" [output.mp3]
+git clone https://github.com/Wh1t3co1azZ/voice-reply.git
+cd voice-reply
+```
+
+### 2. 安装 Python 依赖
+
+```bash
+pip3 install requests --user
+```
+
+### 3. 配置 API Key
+
+编辑 `voice_reply.py`，替换 `DEFAULT_API_KEY` 为你的 MiniMax API Key：
+
+```python
+DEFAULT_API_KEY = "your-minimax-api-key-here"
+```
+
+获取 API Key：https://platform.minimaxi.com/
+
+## 使用方法
+
+### 命令行
+
+```bash
+# 基本用法
+python3 voice_reply.py "你好，这是语音测试" /tmp/test.mp3
+
+# 指定音色
+python3 voice_reply.py "你好" /tmp/test.mp3 female-yujie
+
+# 指定语速（0.5-2.0）
+python3 voice_reply.py "快速播报" /tmp/test.mp3 female-shaonv 1.5
 ```
 
 ### Python API
 
 ```python
 from voice_reply import speak
-speak("义父好，这是一条语音播报测试。", voice_id="female-shaonv", out_path="/tmp/tts.mp3")
+
+# 默认音色（少女音色）
+speak("义父好，这是一条语音播报测试。")
+
+# 指定音色
+speak("你好，这是一条御姐音色的测试。", voice_id="female-yujie")
+
+# 指定语速
+speak("快速播报测试", voice_id="male-qn-badao", speed=1.5)
+
+# 不自动播放（生成文件）
+speak("只生成文件", play=False, out_path="/tmp/custom.mp3")
 ```
 
-### Voice IDs (Chinese Mandarin)
+## 音色列表
 
-| Voice ID | Name | Description |
-|----------|------|-------------|
-| `female-shaonv` | 少女音色 | Young female (default) |
-| `female-shaonv-jingpin` | 少女音色-beta | Enhanced young female |
-| `female-yujie` | 御姐音色 | Mature female |
-| `female-yujie-jingpin` | 御姐音色-beta | Enhanced mature female |
-| `female-chengshu` | 成熟女性音色 | Senior female |
-| `female-chengshu-jingpin` | 成熟女性音色-beta | Enhanced senior female |
-| `female-tianmei` | 甜美女性音色 | Sweet female |
-| `female-tianmei-jingpin` | 甜美女性音色-beta | Enhanced sweet female |
-| `male-qn-qingse` | 青涩青年音色 | Shy young male |
-| `male-qn-qingse-jingpin` | 青涩青年音色-beta | Enhanced shy young male |
-| `male-qn-jingying` | 精英青年音色 | Elite young male |
-| `male-qn-jingying-jingpin` | 精英青年音色-beta | Enhanced elite young male |
-| `male-qn-badao` | 霸道青年音色 | Dominant young male |
-| `male-qn-badao-jingpin` | 霸道青年音色-beta | Enhanced dominant young male |
-| `male-qn-daxuesheng` | 青年大学生音色 | College student male |
-| `male-qn-daxuesheng-jingpin` | 青年大学生音色-beta | Enhanced college student male |
-| `Chinese (Mandarin)_Reliable_Executive` | 沉稳高管 | Reliable executive |
-| `Chinese (Mandarin)_News_Anchor` | 新闻女声 | News anchor female |
-| `Chinese (Mandarin)_Mature_Woman` | 傲娇御姐 | Tsundere female |
-| `Chinese (Mandarin)_Unrestrained_Young_Man` | 不羁青年 | Unrestrained young male |
-| `Chinese (Mandarin)_Gentleman` | 温润男声 | Gentle male |
-| `Chinese (Mandarin)_Kind-hearted_Antie` | 热心大婶 | Kind-hearted aunt |
-| `Chinese (Mandarin)_Humorous_Elder` | 搞笑大爷 | Humorous elder |
-| `Chinese (Mandarin)_HK_Flight_Attendant` | 港普空姐 | HK flight attendant |
-| `Arrogant_Miss` | 嚣张小姐 | Arrogant miss |
-| `Robot_Armor` | 机械战甲 | Robot armor |
-| `clever_boy` | 聪明男童 | Clever boy |
-| `cute_boy` | 可爱男童 | Cute boy |
-| `lovely_girl` | 萌萌女童 | Lovely girl |
-| `cartoon_pig` | 卡通猪小琪 | Cartoon pig |
-| `bingjiao_didi` | 病娇弟弟 | Yandere little brother |
-| `junlang_nanyou` | 俊朗男友 | Handsome boyfriend |
-| `chunzhen_xuedi` | 纯真学弟 | Innocent junior male |
-| `lengdan_xiongzhang` | 冷淡学长 | Cold senior male |
-| `badao_shaoye` | 霸道少爷 | Domineering young master |
-| `tianxin_xiaoling` | 甜心小玲 | Sweetheart Xiaoling |
-| `qiaopi_mengmei` | 俏皮萌妹 | Witty cute girl |
-| `wumei_yujie` | 妩媚御姐 | Glamorous mature female |
-| `diadia_xuemei` | 嗲嗲学妹 | Doting junior female |
-| `danya_xuejie` | 淡雅学姐 | Elegant senior female |
+完整音色列表及说明：https://platform.minimaxi.com/docs/faq/system-voice-id
 
-## Audio Settings
+### 常用音色速查
 
-- Format: MP3
-- Sample rate: 32000 Hz
-- Bitrate: 128000 bps
-- Speed: 1.0 (adjustable 0.5–2.0)
-- Pitch: 0 (adjustable -12 to 12)
+| Voice ID | 名称 | 适用场景 |
+|----------|------|---------|
+| `female-shaonv` | 少女音色 | 默认，柔和亲切 |
+| `female-shaonv-jingpin` | 少女音色-beta | 增强版少女音 |
+| `female-yujie` | 御姐音色 | 成熟稳重 |
+| `female-tianmei` | 甜美女性音色 | 温柔甜美 |
+| `male-qn-jingying` | 精英青年音色 | 专业正式 |
+| `male-qn-badao` | 霸道青年音色 | 强势有力 |
+| `male-qn-daxuesheng` | 青年大学生音色 | 青春活力 |
 
-## API Details
+### 更多音色
 
-- Endpoint: `POST https://api.minimaxi.com/v1/t2a_v2`
-- Model: `speech-2.8-hd`
-- Auth: Bearer token in `Authorization` header
+| 音色ID | 名称 |
+|--------|------|
+| `female-chengshu` | 成熟女性音色 |
+| `female-chengshu-jingpin` | 成熟女性音色-beta |
+| `female-tianmei-jingpin` | 甜美女性音色-beta |
+| `male-qn-qingse` | 青涩青年音色 |
+| `male-qn-jingying-jingpin` | 精英青年音色-beta |
+| `male-qn-badao-jingpin` | 霸道青年音色-beta |
+| `male-qn-daxuesheng-jingpin` | 青年大学生音色-beta |
+| `Chinese (Mandarin)_Reliable_Executive` | 沉稳高管 |
+| `Chinese (Mandarin)_News_Anchor` | 新闻女声 |
+| `Chinese (Mandarin)_Mature_Woman` | 傲娇御姐 |
+| `Chinese (Mandarin)_Unrestrained_Young_Man` | 不羁青年 |
+| `Chinese (Mandarin)_Gentleman` | 温润男声 |
+| `Chinese (Mandarin)_Kind-hearted_Antie` | 热心大婶 |
+| `Chinese (Mandarin)_Humorous_Elder` | 搞笑大爷 |
+| `Chinese (Mandarin)_HK_Flight_Attendant` | 港普空姐 |
+| `Arrogant_Miss` | 嚣张小姐 |
+| `Robot_Armor` | 机械战甲 |
+| `clever_boy` | 聪明男童 |
+| `cute_boy` | 可爱男童 |
+| `lovely_girl` | 萌萌女童 |
+| `cartoon_pig` | 卡通猪小琪 |
+| `bingjiao_didi` | 病娇弟弟 |
+| `junlang_nanyou` | 俊朗男友 |
+| `chunzhen_xuedi` | 纯真学弟 |
+| `lengdan_xiongzhang` | 冷淡学长 |
+| `badao_shaoye` | 霸道少爷 |
+| `tianxin_xiaoling` | 甜心小玲 |
+| `qiaopi_mengmei` | 俏皮萌妹 |
+| `wumei_yujie` | 妩媚御姐 |
+| `diadia_xuemei` | 嗲嗲学妹 |
+| `danya_xuejie` | 淡雅学姐 |
 
-## Files
+## 参数说明
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `text` | str | 必填 | 要合成的文字内容 |
+| `voice_id` | str | `female-shaonv` | 音色ID |
+| `speed` | float | 1.0 | 语速，范围 0.5-2.0 |
+| `vol` | float | 1.0 | 音量，范围 0-2.0 |
+| `pitch` | int | 0 | 音调，范围 -12 到 12 |
+| `out_path` | str | `/tmp/tts_output.mp3` | 输出文件路径 |
+| `play` | bool | `True` | 是否自动播放 |
+
+## 故障排除
+
+| 问题 | 原因 | 解决方案 |
+|------|------|---------|
+| `Connection refused` | 网络不通 | 尝试配置代理或检查网络 |
+| `Token error` | API Key 无效或过期 | 检查或更换 API Key |
+| 无音频播放 | afplay 路径问题 | 确认 macOS 系统，afplay 为内置工具 |
+| `Empty audio` | 文字为空或语言不支持 | 检查输入文字 |
+
+## 文件结构
 
 ```
 voice-reply/
-├── SKILL.md          # This file
-├── scripts/
-│   └── voice_reply.py   # Main TTS script
-└── references/
-    └── voice-list.md    # Voice ID reference
+├── SKILL.md              # 本文件
+├── voice_reply.py        # 核心 TTS 脚本
+└── voice-list.md         # 音色参考列表
 ```
 
-## Installation
+## 开源许可
 
-```bash
-# Install requests if needed
-pip3 install requests --user
+MIT License
 
-# Test
-python3 voice_reply.py "你好，这是语音测试" /tmp/test.mp3 && afplay /tmp/test.mp3
-```
+## 相关链接
 
-## Troubleshooting
-
-- **Connection refused**: Proxy may be blocking. Try without proxy.
-- **Token error**: Check API key is valid and has not expired.
-- **No audio**: Verify `afplay` works on your system.
-- **Empty audio**: Check text is not empty and language is supported.
+- MiniMax 平台：https://platform.minimaxi.com/
+- 音色列表：https://platform.minimaxi.com/docs/faq/system-voice-id
+- GitHub 仓库：https://github.com/Wh1t3co1azZ/voice-reply
