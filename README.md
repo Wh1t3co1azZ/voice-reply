@@ -168,9 +168,8 @@ speak("只生成文件", play=False, out_path="/tmp/custom.mp3")
 
 ```
 voice-reply/
-├── SKILL.md              # 本文件
-├── voice_reply.py        # 核心 TTS 脚本
-└── voice-list.md         # 音色参考列表
+├── README.md             # 本文件
+└── voice_reply.py        # 核心 TTS 脚本
 ```
 
 ## 开源许可
